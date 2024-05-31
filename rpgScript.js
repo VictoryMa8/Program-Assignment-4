@@ -1,5 +1,8 @@
 let xp = 0;
+let level = 0;
+let xpToNextLevel = 10;
 let health = 100;
+let maxHealth = 100;
 let gold = 50;
 let currentWeapon = 0;
 let fighting;
@@ -16,8 +19,11 @@ const button1 = document.querySelector('#button1');
 const button2 = document.querySelector("#button2");
 const button3 = document.querySelector("#button3");
 const text = document.querySelector("#text");
+const text2 = document.querySelector("#text2");
+const levelText = document.querySelector("#levelText");
 const xpText = document.querySelector("#xpText");
 const healthText = document.querySelector("#healthText");
+const maxHealthText = document.querySelector("#maxHealthText");
 const goldText = document.querySelector("#goldText");
 const monsterStats = document.querySelector("#monsterStats");
 const monsterName = document.querySelector("#monsterName");
@@ -31,12 +37,12 @@ const weapons = [
 const monsters = [
   {
     name: "Scorpion",
-    level: 2,
+    level: 5,
     health: 20
   },
   {
     name: "Jackal",
-    level: 8,
+    level: 10,
     health: 60
   },
   {
@@ -50,49 +56,57 @@ const locations = [
     name: "Village",
     "button text": ["Go To Store", "Go To Ancient Ruins", "Fight Geb, God of the Earth"],
     "button functions": [goStore, goRuins, fightGeb],
-    text: "You are in the Village square. You see a sign that says \"Store\"."
+    text: "You are in the Village square. You see a sign that says \"Store\".",
+    text2: ""
   },
   {
     name: "store",
-    "button text": ["Buy Health (10 gold)", "Buy Weapon (30 gold)", "Leave The Store"],
-    "button functions": [buyHealth, buyWeapon, goVillage],
-    text: "You enter the store."
+    "button text": ["Buy Potion (10 gold)", "Buy Weapon (30 gold)", "Leave The Store"],
+    "button functions": [buyPotion, buyWeapon, goVillage],
+    text: "You enter the store.",
+    text2: ""
   },
   {
     name: "Ruins",
     "button text": ["Fight Scorpion", "Fight Jackal", "Go Back To Village"],
     "button functions": [fightScorpion, fightBeast, goVillage],
-    text: "You walk through the ancient ruins. There are evil creatures lurking about."
+    text: "You walk through the ancient ruins. There are evil creatures lurking about.",
+    text2: ""
   },
   {
     name: "fight",
     "button text": ["Attack", "Dodge", "Run"],
     "button functions": [attack, dodge, goVillage],
-    text: "You are fighting a monster."
+    text: "You are fighting a monster.",
+    text2: ""
   },
   {
     name: "kill monster",
     "button text": ["Go To Village", "Go To Village", "Go To Village"],
     "button functions": [goVillage, goVillage, easterEgg],
-    text: 'The creature yelps in pain as it dies. You gain experience points and acquire gold.'
+    text: 'The creature yelps in pain as it dies. You gain experience points and acquire gold.',
+    text2: ""
   },
   {
     name: "lose",
-    "button text": ["REPLAY?", "REPLAY?", "REPLAY?"],
+    "button text": ["Restart", "Restart", "Restart"],
     "button functions": [restart, restart, restart],
-    text: "You die. &#x2620;"
+    text: "You die. &#x2620;",
+    text2: ""
   },
   { 
     name: "win", 
-    "button text": ["REPLAY?", "REPLAY?", "REPLAY?"], 
+    "button text": ["Restart", "Restart", "Restart"], 
     "button functions": [restart, restart, restart], 
-    text: "You defeat Geb, God of The Earth! You win the game! &#x1F389;" 
+    text: "You defeat Geb, God of The Earth! You win the game! &#x1F389;",
+    text2: ""
   },
   {
     name: "easter egg",
     "button text": ["2", "8", "Go To Village?"],
     "button functions": [pickTwo, pickEight, goVillage],
-    text: "You find a secret game. Pick a number above. Ten numbers will be randomly chosen between 0 and 10. If the number you choose matches one of the random numbers, you win!"
+    text: "You find a secret game. Pick a number above. Ten numbers will be randomly chosen between 0 and 10. If the number you choose matches one of the random numbers, you win!",
+    text2: ""
   }
 ];
 
@@ -110,6 +124,7 @@ function update(location) {
   button2.onclick = location["button functions"][1];
   button3.onclick = location["button functions"][2];
   text.innerHTML = location.text;
+  text2.innerHTML = location.text2;
 }
 
 function goVillage() {
@@ -124,14 +139,20 @@ function goRuins() {
   update(locations[2]);
 }
 
-function buyHealth() {
-  if (gold >= 10) {
+function buyPotion() {
+  if (gold >= 10 && health < maxHealth) {
     gold -= 10;
-    health += 10;
+    health += 20;
+    if (health > maxHealth) {
+      health = maxHealth;
+    }
     goldText.innerText = gold;
     healthText.innerText = health;
-  } else {
-    text.innerText = "You do not have enough gold to buy health.";
+  } else if (health === maxHealth) {
+    text2.innerText = "You are already at full health.";
+  }
+  else if (gold < 10) {
+    text2.innerText = "You do not have enough gold to buy a potion.";
   }
 }
 
@@ -146,24 +167,24 @@ function buyWeapon() {
       inventory.push(newWeapon);
       text.innerText += " In your inventory you have: " + inventory;
     } else {
-      text.innerText = "You do not have enough gold to buy a weapon.";
+      text2.innerText = "You do not have enough gold to buy a weapon.";
     }
   } else {
-    text.innerText = "You already have the most powerful weapon.";
-    button2.innerText = "Sell weapon for 15 gold";
+    text2.innerText = "You already have the most powerful weapon.";
+    button2.innerText = "Sell item for 10 gold";
     button2.onclick = sellWeapon;
   }
 }
 
 function sellWeapon() {
   if (inventory.length > 1) {
-    gold += 15;
+    gold += 10;
     goldText.innerText = gold;
     let currentWeapon = inventory.shift();
     text.innerText = "You sold a " + currentWeapon + ".";
-    text.innerText += " In your inventory you have: " + inventory;
+    text2.innerText = " In your inventory you have: " + inventory;
   } else {
-    text.innerText = "You cannot sell your only weapon.";
+    text2.innerText = "You cannot sell your only weapon.";
   }
 }
 
@@ -197,7 +218,7 @@ function attack() {
   if (isMonsterHit()) {
     monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;    
   } else {
-    text.innerText += " You miss.";
+    text2.innerText += " You miss.";
   }
   healthText.innerText = health;
   monsterHealthText.innerText = monsterHealth;
@@ -211,9 +232,30 @@ function attack() {
     }
   }
   if (Math.random() <= .1 && inventory.length !== 1) {
-    text.innerText += " Your " + inventory.pop() + " breaks.";
+    text2.innerText = " Your " + inventory.pop() + " breaks.";
     currentWeapon--;
   }
+}
+
+function gainXP(amount) {
+  xp += amount;
+  xpText.innerText = xp;
+  if (xp >= xpToNextLevel) {
+    levelUp();
+  }
+}
+
+function levelUp() {
+  xp -= xpToNextLevel;
+  level++;
+  xpToNextLevel *= 1.5;
+  health += (3 * level);
+  maxHealth += (4 * level);
+  healthText.innerText = health;
+  maxHealthText.innerText = maxHealth;
+  xpText.innerText = xp;
+  levelText.innerText = level;
+  text2.innerText = "You have leveled up. You are now level " + level + "." + " You healed up slightly, and gained " + (4 * level) + " max health.";
 }
 
 function getMonsterAttackValue(level) {
@@ -232,7 +274,7 @@ function dodge() {
 
 function defeatMonster() {
   gold += Math.floor(monsters[fighting].level * 6.7);
-  xp += monsters[fighting].level;
+  gainXP(monsters[fighting].level);
   goldText.innerText = gold;
   xpText.innerText = xp;
   update(locations[4]);
@@ -249,11 +291,13 @@ function winGame() {
 function restart() {
   xp = 0;
   health = 100;
+  maxHealth = 100;
   gold = 50;
   currentWeapon = 0;
   inventory = ["Stick"];
   goldText.innerText = gold;
   healthText.innerText = health;
+  maxHealthText.innerText = maxHealth;
   xpText.innerText = xp;
   goVillage();
 }

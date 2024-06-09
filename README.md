@@ -1,4 +1,4 @@
-# Program-Assignment-4
+# Minigames
 Victory Ma
 
 Prof. Barbara Johnson
